@@ -32,7 +32,7 @@ public class OrderRepository : IOrderRepository
         return await _db.Orders.FirstOrDefaultAsync(i => i.Id == id);
     }
 
-    public Task<List<Order>> Select()
+    public Task<List<Order>> SelectList()
     {
         return _db.Orders.ToListAsync();
     }

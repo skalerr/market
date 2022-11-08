@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Implementations" />
-      <Folder Include="Interfaces" />
+      <ProjectReference Include="..\Market.DAL\Market.DAL.csproj" />
+      <ProjectReference Include="..\Market.Domain\Market.Domain.csproj" />
     </ItemGroup>
 
 </Project>

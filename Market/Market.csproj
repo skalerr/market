@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Market.DAL\Market.DAL.csproj" />
+      <ProjectReference Include="..\Market.Service\Market.Service.csproj" />
     </ItemGroup>
 
 </Project>

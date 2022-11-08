@@ -1,6 +1,9 @@
-using Market.DAL;
-using Market.DAL.Interfaces;
-using Microsoft.EntityFrameworkCore;
+global using Market.DAL;
+global using Market.DAL.Interfaces;
+global using Market.Domain.Entity;
+global using Market.Service.Implementations;
+global using Market.Service.Interfaces;
+global using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 var con = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con));
+//взаимодействие с бд
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+
+//сервис для взаимодействия с заказами
+builder.Services.AddScoped<IOrderService, OrderService>();
+
 
 var app = builder.Build();
 
