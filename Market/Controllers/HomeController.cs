@@ -7,19 +7,19 @@ namespace Market.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IOrderService _orderService;
+    private readonly IOrderItemService _orderItemService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IOrderService orderService, IOrderItemService orderItemService)
     {
         _logger = logger;
+        _orderService = orderService;
+        _orderItemService = orderItemService;
     }
 
     public IActionResult Index()
     {
-        return View();
-    }
-
-    public IActionResult Privacy()
-    {
+        ViewBag.Orders = _orderService.GetOrders();
         return View();
     }
 

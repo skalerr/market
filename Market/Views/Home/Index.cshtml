@@ -1,8 +1,39 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+  ViewData["Title"] = "Home Page";
+  var orders = ViewBag.Orders as List<Order>;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@* <div class="text-center"> *@
+@*     <h1 class="display-4">Welcome</h1> *@
+@*     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p> *@
+@* </div> *@
+@{
+  @if (orders?.Count > 1)
+  {
+    <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Number</th>
+      <th scope="col">Date</th>
+      <th scope="col">Provider</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var order in orders)
+    {
+      <tr>
+        <th scope="row">@order.Id</th>
+        <td>@order.Number</td>
+        <td>@order.Date</td>
+        <td>@order.Provider</td>
+      </tr>
+    }
+    </tbody>
+    </table>
+  }
+}
+
+<div>
+    <p><input type="submit" value="Отправить" /></p>
 </div>
