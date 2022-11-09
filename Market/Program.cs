@@ -4,6 +4,8 @@ global using Market.Domain.Entity;
 global using Market.Service.Implementations;
 global using Market.Service.Interfaces;
 global using Microsoft.EntityFrameworkCore;
+using Market.Domain.Interfaces;
+using Market.Domain.Response;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,14 +14,14 @@ builder.Services.AddControllersWithViews();
 var con = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con));
 //взаимодействие с бд
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+
+builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+builder.Services.AddTransient<IOrderItemRepository, OrderItemRepository>();
 
 //сервис для взаимодействия с заказами
-builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
 
-builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>(); 
-
+builder.Services.AddTransient<IOrderItemService, OrderItemService>(); 
 
 var app = builder.Build();
 

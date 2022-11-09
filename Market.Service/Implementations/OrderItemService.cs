@@ -8,9 +8,9 @@ namespace Market.Service.Implementations;
 
 public class OrderItemService : IOrderItemService
 {
-    private readonly OrderItemRepository _orderRepository;
+    private readonly IOrderItemRepository _orderRepository;
 
-    public OrderItemService(OrderItemRepository orderRepository)
+    public OrderItemService(IOrderItemRepository orderRepository)
     {
         _orderRepository = orderRepository;
     }
