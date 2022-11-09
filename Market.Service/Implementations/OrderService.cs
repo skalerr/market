@@ -8,13 +8,12 @@ namespace Market.Service.Implementations;
 
 public class OrderService : IOrderService
 {
-    private readonly IOrderRepository _orderRepository;
+    private readonly OrderRepository _orderRepository;
 
-    public OrderService(IOrderRepository orderRepository)
+    public OrderService(OrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
     }
-
 
     public async Task<BaseResponse<List<Order>>> GetOrders()
     {
@@ -41,6 +40,81 @@ public class OrderService : IOrderService
                 StatusCode = StatusCode.InternalServerError,
             };
         }
-        
+    }
+
+    public async Task<BaseResponse<Order>> GetOrder(int id)
+    {
+        var baseresp = new BaseResponse<Order>();
+        try
+        {
+            baseresp.Data = await _orderRepository.Get(id);
+        }
+        catch (Exception e)
+        {
+            return new BaseResponse<Order>()
+            {
+                Descripton = $"[OrderService]: {e.Message}",
+                StatusCode = StatusCode.InternalServerError,
+            };
+        }
+        baseresp.StatusCode = StatusCode.Ok;
+        return baseresp;
+    }
+
+    public async Task<BaseResponse<bool>> CreateOrder(Order order)
+    {
+        var baseresp = new BaseResponse<bool>();
+        try
+        {
+            baseresp.Data = await _orderRepository.Create(order);
+        }
+        catch (Exception e)
+        {
+            return new BaseResponse<bool>()
+            {
+                Descripton = $"[OrderService]: {e.Message}",
+                StatusCode = StatusCode.InternalServerError,
+            };
+        }
+        baseresp.StatusCode = StatusCode.Ok;
+        return baseresp;
+    }
+
+    public async Task<BaseResponse<bool>> UpdateOrder(Order order)
+    {
+        var baseresp = new BaseResponse<bool>();
+        try
+        {
+            baseresp.Data = await _orderRepository.Update(order);
+        }
+        catch (Exception e)
+        {
+            return new BaseResponse<bool>()
+            {
+                Descripton = $"[OrderService]: {e.Message}",
+                StatusCode = StatusCode.InternalServerError,
+            };
+        }
+        baseresp.StatusCode = StatusCode.Ok;
+        return baseresp;
+    }
+
+    public async Task<BaseResponse<bool>> Delete(Order order)
+    {
+        var baseresp = new BaseResponse<bool>();
+        try
+        {
+            baseresp.Data = await _orderRepository.Delete(order);
+        }
+        catch (Exception e)
+        {
+            return new BaseResponse<bool>()
+            {
+                Descripton = $"[OrderService]: {e.Message}",
+                StatusCode = StatusCode.InternalServerError,
+            };
+        }
+        baseresp.StatusCode = StatusCode.Ok;
+        return baseresp;
     }
 }

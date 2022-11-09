@@ -70,8 +70,9 @@ public class OrderItemRepository : IOrderItemRepository
         return await _db.OrderItems.FirstOrDefaultAsync(i => i.Name == name);
     }
 
-    public async Task<OrderItem> GetByOrderId(int id)
+    public async Task<List<OrderItem>> GetAllByOrderId(int id)
     {
-        return await _db.OrderItems.FirstOrDefaultAsync(i => i.OrderId == id);
+        var resp = await _db.OrderItems.Where(i => i.OrderId == id).ToListAsync();
+        return resp;
     }
 }
