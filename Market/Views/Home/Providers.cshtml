@@ -1,0 +1,13 @@
+﻿@model List<Provider>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+@foreach (var item in Model)
+{
+    <div>
+        @item.Id
+    </div>
+}

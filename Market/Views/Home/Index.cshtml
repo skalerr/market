@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@{
   ViewData["Title"] = "Home Page";
   var orders = ViewBag.Orders as List<Order>;
 }
@@ -7,8 +8,16 @@
 @*     <h1 class="display-4">Welcome</h1> *@
 @*     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p> *@
 @* </div> *@
+
+<div>
+  @Html.ActionLink("Создать заказ", "CreateOrder", "Home", null, new { @class = "btn btn-warning" })
+</div>
+<div>
+  @Html.ActionLink("providers", "Providers", "Home", null, new { @class = "btn btn-warning" })
+</div>
+
 @{
-  @if (orders?.Count > 1)
+  @if (true)
   {
     <table class="table">
     <thead>
@@ -20,20 +29,22 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var order in orders)
+    @if (orders != null)
     {
-      <tr>
-        <th scope="row">@order.Id</th>
-        <td>@order.Number</td>
-        <td>@order.Date</td>
-        <td>@order.Provider</td>
-      </tr>
+      foreach (var order in orders)
+      {
+        <tr>
+          <th scope="row">@order.Id</th>
+          <td>@Html.ActionLink(order.Number.ToString(), "OrderInfo", "Home", new { id = order.Id }, null)</td>
+          <td>@order.Date</td>
+          <td>@order.ProviderId</td>
+          
+        </tr>
+      }
     }
+    
     </tbody>
     </table>
   }
 }
 
-<div>
-    <p><input type="submit" value="Отправить" /></p>
-</div>
