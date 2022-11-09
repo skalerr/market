@@ -18,6 +18,8 @@ builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 //сервис для взаимодействия с заказами
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>(); 
+
 
 var app = builder.Build();
 
