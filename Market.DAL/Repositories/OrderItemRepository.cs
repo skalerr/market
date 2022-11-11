@@ -17,7 +17,7 @@ public class OrderItemRepository : IOrderItemRepository
     {
         try
         {
-            await _db.AddAsync(entity);
+            await _db.OrderItems.AddAsync(entity);
             await _db.SaveChangesAsync();
             return true;
         }
@@ -72,7 +72,7 @@ public class OrderItemRepository : IOrderItemRepository
 
     public async Task<List<OrderItem>> GetAllByOrderId(int id)
     {
-        var resp = await _db.OrderItems.Where(i => i.OrderId == id).ToListAsync();
+        var resp = await _db.OrderItems.Select(i => i).Where(i => i.OrderId == id).ToListAsync();
         return resp;
     }
 }

@@ -17,11 +17,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 
 builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 builder.Services.AddTransient<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddTransient<IProviderRepository, ProviderRepository>();
+
 
 //сервис для взаимодействия с заказами
 builder.Services.AddTransient<IOrderService, OrderService>();
 
 builder.Services.AddTransient<IOrderItemService, OrderItemService>(); 
+builder.Services.AddTransient<IProviderService, ProviderService>(); 
 
 var app = builder.Build();
 

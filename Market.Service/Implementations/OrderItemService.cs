@@ -36,7 +36,7 @@ public class OrderItemService : IOrderItemService
         return response;
     }
 
-    public async Task<BaseResponse<bool>> CreateOrder(OrderItemViewModel model)
+    public async Task<BaseResponse<bool>> CreateOrderItem(OrderItemViewModel model)
     {
         var response = new BaseResponse<bool>();
         try
@@ -63,7 +63,7 @@ public class OrderItemService : IOrderItemService
         return response;
     }
 
-    public async Task<BaseResponse<bool>> UpdateOrder(OrderItemViewModel model)
+    public async Task<BaseResponse<bool>> UpdateOrderItem(OrderItemViewModel model)
     {
         var response = new BaseResponse<bool>();
         try
@@ -90,7 +90,7 @@ public class OrderItemService : IOrderItemService
         return response;
     }
 
-    public async Task<BaseResponse<bool>> Delete(int id)
+    public async Task<BaseResponse<bool>> DeleteOrderItem(int id)
     {
         var response = new BaseResponse<bool>();
         try
@@ -117,7 +117,7 @@ public class OrderItemService : IOrderItemService
         return response;
     }
 
-    public async Task<BaseResponse<OrderItem>> GetByName(string name)
+    public async Task<BaseResponse<OrderItem>> GetOrderItemByName(string name)
     {
         var response = new BaseResponse<OrderItem>();
         try

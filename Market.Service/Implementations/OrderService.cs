@@ -15,7 +15,7 @@ public class OrderService : IOrderService
     {
         _orderRepository = orderRepository;
     }
-
+    
     public async Task<BaseResponse<List<Order>>> GetOrders()
     {
         var resp = new BaseResponse<List<Order>>();
@@ -95,10 +95,12 @@ public class OrderService : IOrderService
         {
             var order = new Order()
             {
+                Id = model.Id,
                 Date = model.Date,
                 Number = model.Number,
                 ProviderId = model.ProviderId,
             };
+            
             resp.Data = await _orderRepository.Update(order);
         }
         catch (Exception e)
