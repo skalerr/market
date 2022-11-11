@@ -2,26 +2,27 @@
 using Market.Domain.Entity;
 using Market.Domain.Enum;
 using Market.Domain.Response;
+using Market.Domain.ViewModels.Order;
+using Market.Domain.ViewModels.OrderItem;
 using Market.Service.Interfaces;
 
 namespace Market.Service.Implementations;
 
 public class OrderItemService : IOrderItemService
 {
-    private readonly IOrderItemRepository _orderRepository;
+    private readonly IOrderItemRepository _orderItemRepository;
 
-    public OrderItemService(IOrderItemRepository orderRepository)
+    public OrderItemService(IOrderItemRepository orderItemRepository)
     {
-        _orderRepository = orderRepository;
+        _orderItemRepository = orderItemRepository;
     }
-
 
     public async Task<BaseResponse<OrderItem>> GetOrderItem(int id)
     {
         var response = new BaseResponse<OrderItem>();
         try
         {
-            response.Data = await _orderRepository.Get(id);
+            response.Data = await _orderItemRepository.Get(id);
         }
         catch (Exception e)
         {
@@ -35,12 +36,19 @@ public class OrderItemService : IOrderItemService
         return response;
     }
 
-    public async Task<BaseResponse<bool>> CreateOrder(OrderItem order)
+    public async Task<BaseResponse<bool>> CreateOrder(OrderItemViewModel model)
     {
         var response = new BaseResponse<bool>();
         try
         {
-            response.Data = await _orderRepository.Create(order);
+            var order = new OrderItem()
+            {
+                Name = model.Name,
+                Quantity = model.Quantity,
+                Unit = model.Unit,
+                OrderId = model.OrderId,
+            };
+            response.Data = await _orderItemRepository.Create(order);
         }
         catch (Exception e)
         {
@@ -55,12 +63,20 @@ public class OrderItemService : IOrderItemService
         return response;
     }
 
-    public async Task<BaseResponse<bool>> UpdateOrder(OrderItem order)
+    public async Task<BaseResponse<bool>> UpdateOrder(OrderItemViewModel model)
     {
         var response = new BaseResponse<bool>();
         try
         {
-            response.Data = await _orderRepository.Update(order);
+            var order = new OrderItem()
+            {
+                Name = model.Name,
+                Quantity = model.Quantity,
+                Unit = model.Unit,
+                OrderId = model.OrderId,
+                
+            };
+            response.Data = await _orderItemRepository.Update(order);
         }
         catch (Exception e)
         {
@@ -74,13 +90,20 @@ public class OrderItemService : IOrderItemService
         return response;
     }
 
-    public async Task<BaseResponse<bool>> Delete(OrderItem order)
+    public async Task<BaseResponse<bool>> Delete(int id)
     {
         var response = new BaseResponse<bool>();
         try
         {
-            response.Data = await _orderRepository.Delete(order);
-            
+            var orderItem = await _orderItemRepository.Get(id);
+            if (orderItem == null)
+            {
+                response.Descripton = "Not found.";
+                response.StatusCode = StatusCode.OrderItemNotFound;
+                response.Data = false;
+                return response;
+            }
+            response.Data = await _orderItemRepository.Delete(orderItem);
         }
         catch (Exception e)
         {
@@ -99,7 +122,13 @@ public class OrderItemService : IOrderItemService
         var response = new BaseResponse<OrderItem>();
         try
         {
-            response.Data = await _orderRepository.GetByName(name);
+            response.Data = await _orderItemRepository.GetByName(name);
+            if (response.Data == null)
+            {
+                response.Descripton = "Items not found.";
+                response.StatusCode = StatusCode.OrderItemNotFound;
+                return response;
+            }
         }
         catch (Exception e)
         {
@@ -119,7 +148,13 @@ public class OrderItemService : IOrderItemService
         var response = new BaseResponse<List<OrderItem>>();
         try
         {
-            response.Data = await _orderRepository.GetAllByOrderId(id);
+            response.Data = await _orderItemRepository.GetAllByOrderId(id);
+            if (response.Data == null)
+            {
+                response.Descripton = "Items not found.";
+                response.StatusCode = StatusCode.OrderItemNotFound;
+                return response;
+            }
         }
         catch (Exception e)
         {

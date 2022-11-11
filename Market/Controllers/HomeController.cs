@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Market.Domain.ViewModels.Order;
 using Microsoft.AspNetCore.Mvc;
 using Market.Models;
 
@@ -39,14 +40,14 @@ public class HomeController : Controller
     }
     
     [HttpPost]
-    public IActionResult CreateOrder(Order order)
+    public IActionResult CreateOrder(OrderViewModel model)
     {
-        var resp= _orderService.CreateOrder(order);
+        var resp= _orderService.CreateOrder(model);
         if (resp.Result.StatusCode == Domain.Enum.StatusCode.Ok)
         {
             return RedirectToAction("Index");
         }
-        return View(order);
+        return View(model);
 
     }
     
@@ -57,14 +58,14 @@ public class HomeController : Controller
     }
     
     [HttpPost]
-    public IActionResult EditOrder(Order order)
+    public IActionResult EditOrder(OrderViewModel model)
     {
-        var resp = _orderService.UpdateOrder(order);
+        var resp = _orderService.UpdateOrder(model);
         if (resp.Result.StatusCode == Domain.Enum.StatusCode.Ok)
         {
             RedirectToAction("Index");
         }
-        return View(order);
+        return View(model);
     }
 
     public IActionResult Providers()
@@ -85,12 +86,9 @@ public class HomeController : Controller
 
     public IActionResult DeleteOrder(int id)
     {
-        var order = _orderService.GetOrder(id).Result.Data;
-        var resp = _orderService.Delete(order);
-        if (resp.Result.StatusCode == Domain.Enum.StatusCode.Ok)
-        {
-            return RedirectToAction("Index");
-        } 
-        return RedirectToAction("OrderInfo", new { id});
+        var resp = _orderService.Delete(id);
+        return resp.Result.StatusCode == Domain.Enum.StatusCode.Ok 
+            ? RedirectToAction("Index") 
+            : RedirectToAction("OrderInfo", new { id});
     }
 }

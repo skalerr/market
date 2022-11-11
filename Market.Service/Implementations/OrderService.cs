@@ -2,6 +2,7 @@
 using Market.Domain.Entity;
 using Market.Domain.Enum;
 using Market.Domain.Response;
+using Market.Domain.ViewModels.Order;
 using Market.Service.Interfaces;
 
 namespace Market.Service.Implementations;
@@ -17,20 +18,20 @@ public class OrderService : IOrderService
 
     public async Task<BaseResponse<List<Order>>> GetOrders()
     {
-        var baseresp = new BaseResponse<List<Order>>();
+        var resp = new BaseResponse<List<Order>>();
         try
         {
             var orders= await _orderRepository.SelectList();
             if (orders.Count == 0)
             {
-                baseresp.StatusCode = StatusCode.NotFound;
-                baseresp.Descripton = $"Найдено 0 элементов";
-                return baseresp;
+                resp.StatusCode = StatusCode.OrderNotFound;
+                resp.Descripton = $"Найдено 0 элементов";
+                return resp;
             }
 
-            baseresp.Data = orders;
-            baseresp.StatusCode = StatusCode.Ok;
-            return baseresp;
+            resp.Data = orders;
+            resp.StatusCode = StatusCode.Ok;
+            return resp;
         }
         catch (Exception e)
         {
@@ -44,10 +45,10 @@ public class OrderService : IOrderService
 
     public async Task<BaseResponse<Order>> GetOrder(int id)
     {
-        var baseresp = new BaseResponse<Order>();
+        var resp = new BaseResponse<Order>();
         try
         {
-            baseresp.Data = await _orderRepository.Get(id);
+            resp.Data = await _orderRepository.Get(id);
         }
         catch (Exception e)
         {
@@ -57,16 +58,23 @@ public class OrderService : IOrderService
                 StatusCode = StatusCode.InternalServerError,
             };
         }
-        baseresp.StatusCode = StatusCode.Ok;
-        return baseresp;
+        resp.StatusCode = StatusCode.Ok;
+        return resp;
     }
 
-    public async Task<BaseResponse<bool>> CreateOrder(Order order)
+    public async Task<BaseResponse<bool>> CreateOrder(OrderViewModel model)
     {
-        var baseresp = new BaseResponse<bool>();
+        var resp = new BaseResponse<bool>();
         try
         {
-            baseresp.Data = await _orderRepository.Create(order);
+            var order = new Order()
+            {
+                Date = model.Date,
+                Number = model.Number,
+                Provider = model.Provider,
+                ProviderId = model.ProviderId
+            };
+            resp.Data = await _orderRepository.Create(order);
         }
         catch (Exception e)
         {
@@ -76,16 +84,22 @@ public class OrderService : IOrderService
                 StatusCode = StatusCode.InternalServerError,
             };
         }
-        baseresp.StatusCode = StatusCode.Ok;
-        return baseresp;
+        resp.StatusCode = StatusCode.Ok;
+        return resp;
     }
 
-    public async Task<BaseResponse<bool>> UpdateOrder(Order order)
+    public async Task<BaseResponse<bool>> UpdateOrder(OrderViewModel model)
     {
-        var baseresp = new BaseResponse<bool>();
+        var resp = new BaseResponse<bool>();
         try
         {
-            baseresp.Data = await _orderRepository.Update(order);
+            var order = new Order()
+            {
+                Date = model.Date,
+                Number = model.Number,
+                ProviderId = model.ProviderId,
+            };
+            resp.Data = await _orderRepository.Update(order);
         }
         catch (Exception e)
         {
@@ -95,16 +109,24 @@ public class OrderService : IOrderService
                 StatusCode = StatusCode.InternalServerError,
             };
         }
-        baseresp.StatusCode = StatusCode.Ok;
-        return baseresp;
+        resp.StatusCode = StatusCode.Ok;
+        return resp;
     }
 
-    public async Task<BaseResponse<bool>> Delete(Order order)
+    public async Task<BaseResponse<bool>> Delete(int id)
     {
-        var baseresp = new BaseResponse<bool>();
+        var resp = new BaseResponse<bool>();
         try
         {
-            baseresp.Data = await _orderRepository.Delete(order);
+            var order = await _orderRepository.Get(id);
+            if (order == null)
+            {
+                resp.Descripton = "Not found.";
+                resp.StatusCode = StatusCode.OrderNotFound;
+                resp.Data = false;
+                return resp;
+            }
+            resp.Data = await _orderRepository.Delete(order);
         }
         catch (Exception e)
         {
@@ -114,7 +136,7 @@ public class OrderService : IOrderService
                 StatusCode = StatusCode.InternalServerError,
             };
         }
-        baseresp.StatusCode = StatusCode.Ok;
-        return baseresp;
+        resp.StatusCode = StatusCode.Ok;
+        return resp;
     }
 }
