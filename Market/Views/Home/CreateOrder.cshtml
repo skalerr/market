@@ -27,8 +27,14 @@
     <div class="col-md-9">
       <div class="row">
         <div class="col-md-7">
-          @* <input type="date" name="Date" class="form-control" id=""> *@
-            @Html.TextBoxFor(model => model.Date, new { @class = "form-control", autocomplete = "off" })
+          @* @Html.TextBoxFor(model => model.Date.ToString("yyyy-MM-dd"), new { typel="date", @class = "form-control", autocomplete = "off" }) *@
+          <input 
+            class="form-control" 
+             type="datetime-local" 
+             name="Date" 
+             value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm")"
+             autocomplete = "off"
+          />  
         </div>
         <div class="col-md-5">
           @Html.ValidationMessageFor(model => model.Date, null, new { @class = "error-message" })

@@ -11,5 +11,7 @@ public interface IOrderService
     public Task<BaseResponse<bool>> CreateOrder(OrderViewModel model);
     public Task<BaseResponse<bool>> UpdateOrder(OrderViewModel model);
     public Task<BaseResponse<bool>> Delete(int id);
-    
+    // public Task<BaseResponse<Order>> GetOrderByItemId(int id);
+    public Task<BaseResponse<List<Order>>> GetOrderByDate(DateTime from, DateTime to);
+
 }

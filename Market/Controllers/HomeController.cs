@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Market.Domain.ViewModels.MainPage;
 using Market.Domain.ViewModels.Order;
 using Market.Domain.ViewModels.OrderItem;
 using Microsoft.AspNetCore.Mvc;
@@ -28,11 +29,34 @@ public class HomeController : Controller
         return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
     }
     
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var orders = await _orderService.GetOrders();
         ViewBag.Orders  = orders.Data;
-        return View();
+        var dateTo = DateTime.Now;
+        var dateFrom = DateTime.Now.AddMonths(-1);
+        var model = new MainPageModel()
+        {
+            FinishDate =  dateTo,
+            StartDate = dateFrom,
+        };
+        return View(model);
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> Index(MainPageModel model)
+    {
+        var dateFrom = model.StartDate;
+        var dateTo = model.FinishDate;
+
+        var orders = await _orderService.GetOrderByDate(dateFrom, dateTo);
+        if (!orders.Data.Any())
+        {
+            return View(model);
+        }
+        ViewBag.Orders  = orders.Data;
+        return View(model);
     }
     
     #region -- заказы --
@@ -96,6 +120,17 @@ public class HomeController : Controller
         ViewBag.Providers = providers.Data;
         
         var resp = await _orderService.UpdateOrder(model);
+        if (resp.StatusCode == Domain.Enum.StatusCode.DuplicateName)
+        {
+            ModelState.AddModelError("Number","Имя для текущего заказа должно быть уникальным");
+            ModelState.AddModelError("Provider","Provider для текущего имени заказа должен быть уникальным");
+        }
+
+        if (resp.StatusCode != Domain.Enum.StatusCode.Ok && !ModelState.IsValid)
+        {
+            return View(model);
+        }
+        
         if (resp.StatusCode == Domain.Enum.StatusCode.Ok)
         {
             return RedirectToAction("OrderInfo", new { model.Id});
@@ -205,7 +240,6 @@ public class HomeController : Controller
             Unit = orderResponse.Data.Unit,
             OrderId = orderResponse.Data.OrderId,
             Id = orderResponse.Data.Id,
-
         };
         
         return orderResponse.StatusCode == Domain.Enum.StatusCode.Ok 
@@ -215,11 +249,11 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> EditOrderItem(OrderItemViewModel model)
     {
-        var orderResponse = await _orderService.GetOrder(model.Id);
+        var orderResponse = await _orderItemService.GetOrderItem(model.Id);
 
         if (orderResponse.StatusCode != Domain.Enum.StatusCode.Ok)
         {
-            RedirectToAction("Index");
+            return RedirectToAction("Index");
         }
         
         var data = new OrderItemViewModel()
@@ -227,15 +261,23 @@ public class HomeController : Controller
             Name = model.Name,
             Quantity = model.Quantity,
             Unit = model.Unit,
-            OrderId = model.Id,
+            OrderId = orderResponse.Data.OrderId,
             Id = orderResponse.Data.Id,
         };
         var itemResponse = await _orderItemService.UpdateOrderItem(data);
         
-        
+        if (itemResponse.StatusCode == Domain.Enum.StatusCode.DuplicateName)
+        {
+            ModelState.AddModelError("Name", "Имя для текущего заказа должно быть уникальным");
+        }
+
+        // if (!ModelState.IsValid)
+        // {
+        //     return View(model);
+        // }
         return itemResponse.StatusCode == Domain.Enum.StatusCode.Ok 
-            ? RedirectToAction("OrderInfo", new { model.Id}) 
-            : RedirectToAction("Index");
+            ? RedirectToAction("OrderInfo", new {id = data.OrderId.ToString()}) 
+            : View(model);
     }
 
     public async Task<IActionResult> DeleteOrder(int id)

@@ -75,9 +75,9 @@ public class OrderService : IOrderService
                 ProviderId = model.ProviderId
             };
             
-            var number = await _orderRepository.NotUniqueNumber(order);
+            // var number = await _orderRepository.NotUniqueNumber(order);
             var provider = await _orderRepository.NotUniqueProvide(order);
-            if (number && provider)
+            if (provider)
             {
                 return new BaseResponse<bool>()
                 {
@@ -114,7 +114,24 @@ public class OrderService : IOrderService
                 Number = model.Number,
                 ProviderId = model.ProviderId,
             };
-            
+            // var number = await _orderRepository.NotUniqueNumber(order);
+            var isUniqueProvide = await _orderRepository.NotUniqueProvide(order);
+            var databaseOrder = await _orderRepository.Get(order.Id);
+
+            // Здесь проверка на уникальность состоит в том что если передают тот же номер и айди провайдера,
+            // то выбьет ошибку уникальности, для этого во втором ифе есть проверка на совпадение айдишника или имени.
+            if (isUniqueProvide)
+            {
+                if (model.Number != databaseOrder.Number || model.ProviderId != databaseOrder.ProviderId)
+                {
+                    return new BaseResponse<bool>()
+                    {
+                        Descripton = $"[OrderService]: Duplicate name and Provider",
+                        StatusCode = StatusCode.DuplicateName,
+                        Data = false,
+                    };
+                }
+            }
             resp.Data = await _orderRepository.Update(order);
         }
         catch (Exception e)
@@ -147,6 +164,50 @@ public class OrderService : IOrderService
         catch (Exception e)
         {
             return new BaseResponse<bool>()
+            {
+                Descripton = $"[OrderService]: {e.Message}",
+                StatusCode = StatusCode.InternalServerError,
+            };
+        }
+        resp.StatusCode = StatusCode.Ok;
+        return resp;
+    }
+    
+    // public async Task<BaseResponse<Order>> GetOrderByItemId(int id)
+    // {
+    //     var resp = new BaseResponse<Order>();
+    //     try
+    //     {
+    //         resp.Data = await _orderRepository.Get(id);
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         return new BaseResponse<Order>()
+    //         {
+    //             Descripton = $"[OrderService]: {e.Message}",
+    //             StatusCode = StatusCode.InternalServerError,
+    //         };
+    //     }
+    //     resp.StatusCode = StatusCode.Ok;
+    //     return resp;
+    // }
+    
+    public async Task<BaseResponse<List<Order>>> GetOrderByDate(DateTime from, DateTime to)
+    {
+        var resp = new BaseResponse<List<Order>>();
+        try
+        {
+            resp.Data = await _orderRepository.FilterByDate(from, to);
+            if (!resp.Data.Any())
+            {
+                resp.Descripton = $"[OrderService]: Найдено 0 элементов";
+                resp.StatusCode = StatusCode.NotFound;
+                return resp;
+            }
+        }
+        catch (Exception e)
+        {
+            return new BaseResponse<List<Order>>()
             {
                 Descripton = $"[OrderService]: {e.Message}",
                 StatusCode = StatusCode.InternalServerError,

@@ -1,8 +1,10 @@
-﻿@using Microsoft.AspNetCore.Mvc.Rendering
+﻿@model Market.Domain.ViewModels.MainPage.MainPageModel
+@using Microsoft.AspNetCore.Mvc.Rendering
 @{
   ViewData["Title"] = "Home Page";
   var orders = ViewBag.Orders as List<Order>;
 }
+	
 
 @* <div class="text-center"> *@
 @*     <h1 class="display-4">Welcome</h1> *@
@@ -10,41 +12,76 @@
 @* </div> *@
 
 <div>
-  @Html.ActionLink("Создать заказ", "CreateOrder", "Home", null, new { @class = "btn btn-warning" })
+  <div class="m-3">
+    @Html.ActionLink("Создать заказ", "CreateOrder", "Home", null, new { @class = "btn btn-warning" })
+  </div>
+  <div class="m-3">
+    @Html.ActionLink("providers", "Providers", "Home", null, new { @class = "btn btn-info" })
+  </div>
 </div>
-<div>
-  @Html.ActionLink("providers", "Providers", "Home", null, new { @class = "btn btn-warning" })
-</div>
+@using (Html.BeginForm("Index", "Home", FormMethod.Post, new {@class = "form-horizontal", role = "form"}))
+{
+  <div class="m-2">
+    <label for="StartDate" >От: </label>
+    <input type="datetime-local" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd HH:mm")"/>
+  </div>
 
-@{
-  @if (true)
-  {
-    <table class="table">
-    <thead>
-    <tr>
-      <th scope="col">Id</th>
-      <th scope="col">Number</th>
-      <th scope="col">Date</th>
-      <th scope="col">Provider</th>
-    </tr>
-    </thead>
-    <tbody>
-    @if (orders != null)
-    {
-      foreach (var order in orders)
-      {
-        <tr>
-          <th scope="row">@order.Id</th>
-          <td>@Html.ActionLink(order.Number.ToString(), "OrderInfo", "Home", new { id = order.Id }, null)</td>
-          <td>@order.Date</td>
-          <td>@order.ProviderId</td>
-          
-        </tr>
-      }
-    }
-    
-    </tbody>
-    </table>
-  }
+  <div class="m-2">
+    <label for="FinishDate">До: </label>
+    <input type="datetime-local" name="FinishDate" value="@Model.FinishDate.ToString("yyyy-MM-dd HH:mm")"/>
+  </div>
+
+  <div>
+    <button type="submit" class="btn btn-primary">Фильтровать по дате</button>
+  </div>
 }
 
+@{
+  @if (orders?.Count > 0)
+  {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Id</th>
+          <th scope="col">Number</th>
+          <th scope="col">Date</th>
+          <th scope="col">Provider</th>
+        </tr>
+      </thead>
+      <tbody>
+      @if (orders != null)
+      {
+        foreach (var order in orders)
+        {
+          <tr>
+            <th scope="row">@order.Id</th>
+              <td>@Html.ActionLink(order.Number.ToString(), "OrderInfo", "Home", new { id = order.Id }, null)</td>
+              <td>@order.Date</td>
+              <td>@order.ProviderId</td>
+          </tr>
+        }
+      }
+      </tbody>
+    </table>
+  }
+  else
+  {
+    {
+      <table class="table">
+        <thead>
+        <tr>
+          <th scope="col">Id</th>
+          <th scope="col">Number</th>
+          <th scope="col">Date</th>
+          <th scope="col">Provider</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr>
+            Заказы еще не созданны.
+          </tr>
+        </tbody>
+      </table>
+    }
+  }
+}

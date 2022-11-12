@@ -74,8 +74,13 @@ public class OrderRepository : IOrderRepository
     
     public async Task<bool> NotUniqueProvide(Order entity)
     {
-        var provider = await _db.Orders.Where(o => o.ProviderId == entity.ProviderId).ToListAsync();
+        var provider = await _db.Orders.Where(o => o.ProviderId == entity.ProviderId && o.Number == entity.Number).ToListAsync();
 
         return provider.Count > 0;
+    }
+
+    public async Task<List<Order>> FilterByDate(DateTime from, DateTime to)
+    {
+        return await _db.Orders.Where(d => d.Date >= from && d.Date <= to).ToListAsync();
     }
 }
