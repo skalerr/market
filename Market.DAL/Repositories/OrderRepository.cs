@@ -65,4 +65,17 @@ public class OrderRepository : IOrderRepository
         }
         
     }
+
+    public async Task<bool> NotUniqueNumber(Order entity)
+    {
+        var uniqueName =  await _db.Orders.Where(o => o.Number == entity.Number).ToListAsync();
+        return uniqueName.Count > 0;
+    }
+    
+    public async Task<bool> NotUniqueProvide(Order entity)
+    {
+        var provider = await _db.Orders.Where(o => o.ProviderId == entity.ProviderId).ToListAsync();
+
+        return provider.Count > 0;
+    }
 }

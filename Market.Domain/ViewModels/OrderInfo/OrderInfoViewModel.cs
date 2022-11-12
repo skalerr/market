@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Market.Domain.Entity;
 
@@ -11,12 +12,15 @@ public class OrderInfoViewModel
         public int Id { get; set; }
         
         [Required]
+        [DisplayName("Номер")]
         public int Number { get; set; }
     
         [Required]
+        [DisplayName("Дата")]
         public DateTime Date { get; set; }
     
         [Required]
+        [DisplayName("Провайдер")]
         public int ProviderId { get; set; }
     
         [ForeignKey("ProviderId")]

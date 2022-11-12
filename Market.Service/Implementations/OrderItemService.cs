@@ -40,15 +40,28 @@ public class OrderItemService : IOrderItemService
     {
         var response = new BaseResponse<bool>();
         try
+        
         {
-            var order = new OrderItem()
+            var orderItem = new OrderItem()
             {
                 Name = model.Name,
                 Quantity = model.Quantity,
                 Unit = model.Unit,
                 OrderId = model.OrderId,
             };
-            response.Data = await _orderItemRepository.Create(order);
+
+            var orderNumber = await _orderItemRepository.StringOrderNumber(orderItem);
+            if (model.Name == orderNumber)
+            {
+                return new BaseResponse<bool>()
+                {
+                    Descripton = $"[OrderService]: Duplicate Name and Number",
+                    StatusCode = StatusCode.DuplicateName,
+                    Data = false,
+                };
+            }
+
+            response.Data = await _orderItemRepository.Create(orderItem);
         }
         catch (Exception e)
         {

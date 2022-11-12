@@ -74,6 +74,19 @@ public class OrderService : IOrderService
                 Provider = model.Provider,
                 ProviderId = model.ProviderId
             };
+            
+            var number = await _orderRepository.NotUniqueNumber(order);
+            var provider = await _orderRepository.NotUniqueProvide(order);
+            if (number && provider)
+            {
+                return new BaseResponse<bool>()
+                {
+                    Descripton = $"[OrderService]: Duplicate name and Provider",
+                    StatusCode = StatusCode.DuplicateName,
+                    Data = false,
+                };
+            }
+            
             resp.Data = await _orderRepository.Create(order);
         }
         catch (Exception e)
@@ -82,6 +95,7 @@ public class OrderService : IOrderService
             {
                 Descripton = $"[OrderService]: {e.Message}",
                 StatusCode = StatusCode.InternalServerError,
+                Data = false,
             };
         }
         resp.StatusCode = StatusCode.Ok;

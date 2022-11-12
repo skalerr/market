@@ -57,11 +57,19 @@ public class HomeController : Controller
         ViewBag.Providers = providers.Result.Data;
         
         var resp= await _orderService.CreateOrder(model);
-        if (resp.StatusCode == Domain.Enum.StatusCode.Ok)
+        
+
+        if (resp.StatusCode == Domain.Enum.StatusCode.DuplicateName)
         {
-            return RedirectToAction("Index");
+            ModelState.AddModelError("Number", "Имя для текущего провайдера должно быть уникальным");
         }
-        return View(model);
+        
+        if (resp.StatusCode != Domain.Enum.StatusCode.Ok)
+        {
+            return View(model);
+        }
+        
+        return RedirectToAction("Index");
 
     }
     
@@ -94,7 +102,7 @@ public class HomeController : Controller
         }
         return View(model);
     }
-    
+    [HttpGet]
     public async Task<IActionResult> OrderInfo(int id)
     {
         var providers =  await _providerService.GetProviders();
@@ -121,6 +129,19 @@ public class HomeController : Controller
         }
         return RedirectToAction("Index");
     }
+    [HttpPost]
+    public async Task<IActionResult> OrderInfo(OrderViewModel model)
+    {
+        var providers =  await _providerService.GetProviders();
+        ViewBag.Providers = providers.Data;
+        return View("OrderInfo", model);
+    }
+    
+    [HttpGet]
+    public IActionResult AddItemToOrder()
+    {
+        return RedirectToAction("Index");
+    }
     
     public async Task<IActionResult> AddItemToOrder(OrderViewModel model)
     {
@@ -141,6 +162,76 @@ public class HomeController : Controller
         };
         var itemResponse = await _orderItemService.CreateOrderItem(data);
         
+        if (itemResponse.StatusCode == Domain.Enum.StatusCode.DuplicateName)
+        {
+            ModelState.AddModelError("OrderItem.Name", "Имя для текущего заказа должно быть уникальным");
+        }
+        
+        if (!ModelState.IsValid)
+        {
+            var providers =  await _providerService.GetProviders();
+            ViewBag.Providers = providers.Data;
+            var orderItems = await _orderItemService.GetOrderItemsByOrderId(model.Id);
+            if (orderItems.StatusCode != Domain.Enum.StatusCode.Ok)
+            {
+                return RedirectToAction("Index");
+            }
+
+            model.ListItems = orderItems.Data;
+            return View("OrderInfo", model);
+        }
+        
+        else
+            return itemResponse.StatusCode == Domain.Enum.StatusCode.Ok 
+                ? RedirectToAction("OrderInfo", new { model.Id}) 
+                : RedirectToAction("Index");
+
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> EditOrderItem(int id)
+    {
+        var orderResponse = await _orderItemService.GetOrderItem(id);
+
+        if (orderResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+        {
+            RedirectToAction("Index");
+        }
+        
+        var model = new OrderItemViewModel()
+        {
+            Name = orderResponse.Data.Name,
+            Quantity = orderResponse.Data.Quantity,
+            Unit = orderResponse.Data.Unit,
+            OrderId = orderResponse.Data.OrderId,
+            Id = orderResponse.Data.Id,
+
+        };
+        
+        return orderResponse.StatusCode == Domain.Enum.StatusCode.Ok 
+            ? View(model)
+            : RedirectToAction("Index");
+    }
+    [HttpPost]
+    public async Task<IActionResult> EditOrderItem(OrderItemViewModel model)
+    {
+        var orderResponse = await _orderService.GetOrder(model.Id);
+
+        if (orderResponse.StatusCode != Domain.Enum.StatusCode.Ok)
+        {
+            RedirectToAction("Index");
+        }
+        
+        var data = new OrderItemViewModel()
+        {
+            Name = model.Name,
+            Quantity = model.Quantity,
+            Unit = model.Unit,
+            OrderId = model.Id,
+            Id = orderResponse.Data.Id,
+        };
+        var itemResponse = await _orderItemService.UpdateOrderItem(data);
+        
         
         return itemResponse.StatusCode == Domain.Enum.StatusCode.Ok 
             ? RedirectToAction("OrderInfo", new { model.Id}) 
@@ -154,12 +245,28 @@ public class HomeController : Controller
             ? RedirectToAction("Index") 
             : RedirectToAction("OrderInfo", new { id});
     }
+    
+    public async Task<IActionResult> DeleteItemOrder(int id)
+    {
+        var respOrderItem = await _orderItemService.GetOrderItem(id);
+        var respOrder = await _orderService.GetOrder(respOrderItem.Data.OrderId);
+        
+        var resp = await _orderItemService.DeleteOrderItem(id);
+        return resp.StatusCode == Domain.Enum.StatusCode.Ok 
+            ? RedirectToAction("OrderInfo", new { respOrder.Data.Id})
+            : RedirectToAction("Index");
+    }
 
     #endregion
+
+   
     
     public async Task<IActionResult> Providers()
     {
         var model = await _providerService.GetProviders();
         return View(model.Data);
     }
+
+
+    
 }

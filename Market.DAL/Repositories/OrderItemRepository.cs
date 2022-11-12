@@ -5,14 +5,14 @@ namespace Market.DAL.Interfaces;
 
 public class OrderItemRepository : IOrderItemRepository
 {
-    
+
     private readonly ApplicationDbContext _db;
 
     public OrderItemRepository(ApplicationDbContext db)
     {
         _db = db;
     }
-    
+
     public async Task<bool> Create(OrderItem entity)
     {
         try
@@ -74,5 +74,23 @@ public class OrderItemRepository : IOrderItemRepository
     {
         var resp = await _db.OrderItems.Select(i => i).Where(i => i.OrderId == id).ToListAsync();
         return resp;
+    }
+
+    public async Task<bool> NotUniqueName(OrderItem entity)
+    {
+        var uniqueName = await _db.OrderItems.Where(o => o.Name == entity.Name).ToListAsync();
+        return uniqueName.Count > 0;
+    }
+
+    public async Task<bool> NotUniqueNumber(OrderItem entity)
+    {
+        var uniqueName = await _db.OrderItems.Where(o => o.OrderId == entity.OrderId).ToListAsync();
+        return uniqueName.Count > 0;
+    }
+    
+    public async Task<string> StringOrderNumber(OrderItem entity)
+    {
+        var number = await _db.Orders.FindAsync(entity.OrderId);
+        return number.Number.ToString();
     }
 }

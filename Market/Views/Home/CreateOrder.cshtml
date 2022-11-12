@@ -1,7 +1,8 @@
-﻿@model Order
+﻿@model Market.Domain.ViewModels.Order.OrderViewModel
 
 @{
     ViewData["Title"] = "Home Page";
+    var providers = ViewBag.Providers as List<Provider>;
 }
 
 @using (Html.BeginForm("CreateOrder", "Home", FormMethod.Post, new {@class = "form-horizontal", role = "form"}))
@@ -26,7 +27,8 @@
     <div class="col-md-9">
       <div class="row">
         <div class="col-md-7">
-          @Html.TextBoxFor(model => model.Date, new { @class = "form-control", autocomplete = "off" })
+          @* <input type="date" name="Date" class="form-control" id=""> *@
+            @Html.TextBoxFor(model => model.Date, new { @class = "form-control", autocomplete = "off" })
         </div>
         <div class="col-md-5">
           @Html.ValidationMessageFor(model => model.Date, null, new { @class = "error-message" })
@@ -40,7 +42,11 @@
     <div class="col-md-9">
       <div class="row">
         <div class="col-md-7">
-          @Html.TextBoxFor(model => model.ProviderId, new { @class = "form-control", autocomplete = "off" })
+          @Html.DropDownListFor(
+            model => model.ProviderId, 
+            new SelectList(providers, "Id", "Name"), 
+            new { @class = "form-select", autocomplete = "off" })
+          
         </div>
         <div class="col-md-5">
           @Html.ValidationMessageFor(model => model.ProviderId, null, new { @class = "error-message" })

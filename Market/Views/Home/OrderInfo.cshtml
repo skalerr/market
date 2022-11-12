@@ -1,61 +1,55 @@
-﻿@model Order
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Market.Domain.ViewModels.Order.OrderViewModel
 
 @{
     ViewData["Title"] = "Home Page";
     var order = ViewBag.Order as Order;
+    var providers = ViewBag.Providers as List<Provider>;
+    var errors = ViewBag.Error as List<string>;
 }
-
-<form>
-  <fieldset disabled>
-    <legend>Disabled fieldset example</legend>
-    <div class="form-group">
-      @Html.LabelFor(model => model.Id, new { @class = "control-label col-md-3" })
-      <div class="col-md-9">
-        <div class="row">
-          <div class="col-md-7 selectize-style-only">
-            @Html.TextBoxFor(model => model.Id, new { @class = "form-control", autocomplete = "off" })
-          </div>
-          <div class="col-md-5">
-            @Html.ValidationMessageFor(model => model.Id, null, new { @class = "error-message" })
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="form-group">
-      @Html.LabelFor(model => model.Number, new { @class = "control-label col-md-3" })
-      <div class="col-md-9">
-        <div class="row">
-          <div class="col-md-7 selectize-style-only">
-            @Html.TextBoxFor(model => model.Number, new { @class = "form-control", autocomplete = "off" })
-          </div>
-          <div class="col-md-5">
-            @Html.ValidationMessageFor(model => model.Number, null, new { @class = "error-message" })
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="form-group">
-      @Html.LabelFor(model => model.Date, new { @class = "control-label col-md-3" })
-      <div class="col-md-9">
-        <div class="row">
-          <div class="col-md-7 selectize-style-only">
-            @Html.TextBoxFor(model => model.Date, new { @class = "form-control", autocomplete = "off" })
-          </div>
-          <div class="col-md-5">
-            @Html.ValidationMessageFor(model => model.Date, null, new { @class = "error-message" })
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="form-group">
-          @Html.LabelFor(model => model.ProviderId, new { @class = "control-label col-md-3" })
+<div class="row">
+  <div class="col-6">
+    <form>
+      <fieldset disabled>
+        <legend>Информация о заказе</legend>
+        <div class="form-group">
+          @Html.LabelFor(model => model.Number, new { @class = "control-label col-md-3" })
           <div class="col-md-9">
             <div class="row">
               <div class="col-md-7 selectize-style-only">
-                @Html.TextBoxFor(model => model.ProviderId, new { @class = "form-control", autocomplete = "off" })
+                @Html.TextBoxFor(model => model.Number, new { @class = "form-control", autocomplete = "off" })
+              </div>
+              <div class="col-md-5">
+                @Html.ValidationMessageFor(model => model.Number, null, new { @class = "error-message" })
+              </div>
+            </div>
+          </div>
+        </div>
+           
+        <div class="form-group">
+          @Html.LabelFor(model => model.Date, new { @class = "control-label col-md-3" })
+          <div class="col-md-9">
+            <div class="row">
+              <div class="col-md-7 selectize-style-only">
+                @Html.TextBoxFor(model => model.Date, new { @class = "form-control", autocomplete = "off" })
+              </div>
+              <div class="col-md-5">
+                @Html.ValidationMessageFor(model => model.Date, null, new { @class = "error-message" })
+              </div>
+            </div>
+          </div>
+        </div>
+           
+        <div class="form-group">
+          @Html.LabelFor(model => model.ProviderId, new { @class = "control-label col-md-3" })
+          <div class="col-md-9">
+            <div class="row">
+              <div class="col-md-7">
+                @Html.DropDownListFor(
+                  model => model.ProviderId, 
+                  new SelectList(providers, "Id", "Name"), 
+                  new { @class = "form-select", autocomplete = "off" })
+                     
               </div>
               <div class="col-md-5">
                 @Html.ValidationMessageFor(model => model.ProviderId, null, new { @class = "error-message" })
@@ -63,10 +57,121 @@
             </div>
           </div>
         </div>
-  </fieldset>
-</form>
-  
-@Html.ActionLink("Редачим", "EditOrder", "Home", new { id = Model.Id }, new { @class = "mt-5 btn btn-warning" })
+      </fieldset>
+      @Html.ActionLink("Редачим заказ", "EditOrder", "Home", new { id = Model.Id }, new { @class = "mt-5 btn btn-warning" })
+        
+      @Html.ActionLink("Удаляем заказ", "DeleteOrder", "Home", new { id = Model.Id }, new { @class = "mt-5 btn btn-danger" })
 
-@Html.ActionLink("Удаляем", "DeleteOrder", "Home", new { id = Model.Id }, new { @class = "mt-5 btn btn-danger" })
+    </form>
+  </div>
+  @* <div class="col-2"> *@
+  @*   @if (errors?.Count > 0) *@
+  @*   { *@
+  @*     @foreach (var item in errors) *@
+  @*     { *@
+  @*       <div class="col-md-5"> *@
+  @*         <span  *@
+  @*           class="error-message field-validation-error"  *@
+  @*           data-valmsg-for="Number"  *@
+  @*           data-valmsg-replace="true" *@
+  @*           >@item</span> *@
+  @*       </div> *@
+  @*     } *@
+  @*   } *@
+  @*    *@
+  @* </div> *@
+  
+  <div class="col-6">
+    @using (Html.BeginForm("AddItemToOrder", "Home", FormMethod.Post,new {@class = "form-horizontal", role = "form"}))
+    {
+      @Html.HiddenFor(model => model.OrderItem.Id)
+      @Html.HiddenFor(model => model.Id)
+      <legend>Создать предмет заказа</legend>
+        <div class="form-group">
+          @Html.LabelFor(model => model.OrderItem.Name, new {@class = "control-label col-md-3"})
+          <div class="col-md-9">
+            <div class="row">
+              <div class="col-md-7 selectize-style-only">
+                @Html.TextBoxFor(model => model.OrderItem.Name, new {@class = "form-control", autocomplete = "off"})
+              </div>
+              <div class="col-md-5">
+                @Html.ValidationMessageFor(model => model.OrderItem.Name, null, new {@class = "error-message"})
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          @Html.LabelFor(model => model.OrderItem.Quantity, new {@class = "control-label col-md-3"})
+          <div class="col-md-9">
+            <div class="row">
+              <div class="col-md-7 selectize-style-only">
+                @Html.TextBoxFor(model => model.OrderItem.Quantity, new {@class = "form-control", autocomplete = "off"})
+              </div>
+              <div class="col-md-5">
+                @Html.ValidationMessageFor(model => model.OrderItem.Quantity, null, new {@class = "error-message"})
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+        @Html.LabelFor(model => model.OrderItem.Unit, new {@class = "control-label col-md-3"})
+        <div class="col-md-9">
+          <div class="row">
+            <div class="col-md-7 selectize-style-only">
+              @Html.TextBoxFor(model => model.OrderItem.Unit, new {@class = "form-control", autocomplete = "off"})
+            </div>
+            <div class="col-md-5">
+              @Html.ValidationMessageFor(model => model.OrderItem.Unit, null, new {@class = "error-message"})
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="my-5 btn btn-success">Отправить</button>
+    }
+  </div>
+</div>
+
+  
+
+@if (Model?.ListItems?.Count > 0)
+{
+  <div class="container mt-5">
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+          @foreach (var item in Model.ListItems)
+          {
+            @* <div class="col-sm-6"> *@
+            @*   <div class="card" style="width: 18rem;"> *@
+            @*     <img src="img/1.jpg" class="card-img-top" alt="shrek"> *@
+            @*     <div class="card-body"> *@
+            @*       <h5 class="card-title">Name: @item.Name</h5> *@
+            @*       <p class="card-text">Quantity: @item.Quantity</p> *@
+            @*       <p class="card-text">Unit: @item.Unit</p> *@
+            @*       <a href="#" class="btn btn-primary">Go somewhere</a> *@
+            @*     </div> *@
+            @*   </div> *@
+            @* </div> *@
+            <div class="col">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Name: @item.Name</h5>
+                  <p class="card-text">Quantity: @item.Quantity</p>
+                  <p class="card-text">Unit: @item.Unit</p>
+                  @Html.ActionLink("Редактировать предмет", "EditOrderItem", "Home", new { id = item.Id }, new { @class = "mt-5 btn btn-outline-warning" })
+
+                  @Html.ActionLink("Удалить предмет из заказа", "DeleteItemOrder", "Home", new { id = item.Id }, new { @class = "mt-5 btn btn-outline-danger" })
+
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+  </div>
+  
+
+}
+
+    
+
 
