@@ -32,7 +32,7 @@
   </div>
 
   <div>
-    <button type="submit" class="btn btn-primary">Фильтровать по дате</button>
+    <button type="submit" class="ms-3 btn btn-primary">Фильтровать по дате</button>
   </div>
 }
 
@@ -66,22 +66,20 @@
   }
   else
   {
-    {
-      <table class="table">
-        <thead>
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Number</th>
+        <th scope="col">Date</th>
+        <th scope="col">Provider</th>
+      </tr>
+      </thead>
+      <tbody>
         <tr>
-          <th scope="col">Id</th>
-          <th scope="col">Number</th>
-          <th scope="col">Date</th>
-          <th scope="col">Provider</th>
+          <th scope="col">Заказы еще не созданны.</th>
         </tr>
-        </thead>
-        <tbody>
-          <tr>
-            Заказы еще не созданны.
-          </tr>
-        </tbody>
-      </table>
-    }
+      </tbody>
+    </table>
   }
 }
